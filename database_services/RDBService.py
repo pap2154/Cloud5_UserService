@@ -44,3 +44,38 @@ def get_resource(db_schema, table_name):
     conn.close()
 
     return res
+
+def get_resource_by_id(db_schema, table_name, id):
+
+    conn = _get_db_connection()
+    cur = conn.cursor()
+
+    sql = "select * from " + db_schema + "." + table_name + " where " + table_name + "ID = " + id
+    print("SQL Statement = " + cur.mogrify(sql, None))
+
+    res = cur.execute(sql)
+    res = cur.fetchall()
+
+    conn.close()
+
+    return res
+
+
+def get_resource_by_user(db_schema, table_name1, table_name2, resourceid):
+
+    conn = _get_db_connection()
+    cur = conn.cursor()
+
+    sql = "select * from " + db_schema + "." + table_name2 + \
+          " where " + table_name2 + "ID = (select " + table_name2 + "ID from " + db_schema + "." + table_name1 + \
+          " where " + table_name1 + "ID = " + resourceid + ")"
+    print("SQL Statement = " + cur.mogrify(sql, None))
+
+    res = cur.execute(sql)
+    res = cur.fetchall()
+
+    conn.close()
+
+    return res
+
+
