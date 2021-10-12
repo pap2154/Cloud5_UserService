@@ -59,7 +59,9 @@ class RDBService:
             if fetch:
                 res = cur.fetchall()
         except Exception as e:
+            res = None
             conn.close()
+            print(e)
             raise e
 
         return res
@@ -183,7 +185,6 @@ class RDBService:
         print("SQL Statement = " + cur.mogrify(sql, None))
 
         res = cur.execute(sql)
-        res = cur.fetchall()
 
         conn.close()
 

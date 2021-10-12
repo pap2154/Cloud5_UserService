@@ -35,98 +35,139 @@ def get_by_prefix(db_schema, table_name, column_name, prefix):
 def get_users():
     if request.method == 'GET':
         res = u_service.get_all_users()
+        if not res:
+            rsp = Response("USER NOT FOUND", status=404, content_type='text/plain')
+            return rsp
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
-    else:
+    elif request.method == 'POST':
         try:
             body = request.get_json()
             res = u_service.add_user(body)
-            rsp = Response("Created!", status=201, content_type='application/json')
+            rsp = Response("CREATED", status=201, content_type='text/plain')
             return rsp
-        except:
-            rsp = Response("Error on POST", status=400, content_type='text/plain')
+        except Exception as e:
+            print(e)
+            rsp = Response("UNPROCESSABLE ENTITY", status=422, content_type='text/plain')
             return rsp
+    else:
+        rsp = Response("NOT IMPLEMENTED", status=501)
+        return rsp
 
-@app.route('/users/<userID>', methods=['GET','PUT', 'DELETE'])
+@app.route('/users/<userID>', methods=['GET', 'PUT', 'DELETE'])
 def get_users_by_id(userID):
     if request.method == 'GET':
         res = u_service.get_user_by_id(userID)
+        if not res:
+            rsp = Response("USER NOT FOUND", status=404, content_type='text/plain')
+            return rsp
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     elif request.method == 'PUT':
         try:
             body = request.get_json()
             res = u_service.update_user(userID, body)
-            rsp = Response("Updated!", status=201, content_type='application/json')
+            rsp = Response("OK UPDATE", status=200, content_type='application/json')
             return rsp
         except Exception as e:
             print(str(e))
-            rsp = Response("Error on PUT", status=400, content_type='text/plain')
+            rsp = Response("USER NOT FOUND", status=404, content_type='text/plain')
             return rsp
-    else:
+    elif request.method == 'DELETE':
         try:
             res = u_service.delete_user(userID)
-            rsp = Response("Deleted!", status=201, content_type='application/json')
+            if not res:
+                rsp = Response("USER NOT FOUND", status=404, content_type='text/plain')
+                return rsp
+            rsp = Response("OK DELETE", status=200, content_type='application/json')
             return rsp
         except Exception as e:
             print(str(e))
-            rsp = Response("Error on DELETE", status=404, content_type='text/plain')
-            return rsp
+    else:
+        rsp = Response("NOT IMPLEMENTED", status=501)
+        return rsp
 
 
 @app.route('/users/<userID>/address', methods=['GET'])
 def get_address_by_user(userID):
-    res = u_service.get_address_by_user("user_service", "user", "address", userID)
-    rsp = Response(json.dumps(res), status=200, content_type="application/json")
-    return rsp
+    if request.method == 'GET':
+        res = u_service.get_address_by_user("user_service", "user", "address", userID)
+        if not res:
+            rsp = Response("ADDRESS NOT FOUND", status=404, content_type='text/plain')
+            return rsp
+        rsp = Response(json.dumps(res), status=200, content_type="application/json")
+        return rsp
+    else:
+        rsp = Response("NOT IMPLEMENTED", status=501)
+        return rsp
 
 @app.route('/addresses', methods=['GET', 'POST'])
 def get_addresses():
     if request.method == 'GET':
         res = a_service.get_all_addresses()
+        if not res:
+            rsp = Response("ADDRESS NOT FOUND", status=404, content_type='text/plain')
+            return rsp
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
-    else:
+    elif request.method == 'POST':
         try:
             body = request.get_json()
             res = a_service.add_address(body)
-            rsp = Response("Created!", status=201, content_type='application/json')
+            rsp = Response("CREATED", status=201, content_type='application/json')
             return rsp
         except:
-            rsp = Response("Error on POST", status=400, content_type='text/plain')
+            rsp = Response("UNPROCESSABLE ENTITY", status=422, content_type='text/plain')
             return rsp
+    else:
+        rsp = Response("NOT IMPLEMENTED", status=501)
+        return rsp
 
 @app.route('/addresses/<addressID>', methods=['GET','PUT', 'DELETE'])
 def get_addresses_by_id(addressID):
     if request.method == 'GET':
         res = a_service.get_address_by_id(addressID)
+        if not res:
+            rsp = Response("ADDRESS NOT FOUND", status=404, content_type='text/plain')
+            return rsp
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     elif request.method == 'PUT':
         try:
             body = request.get_json()
             res = a_service.update_address(addressID, body)
-            rsp = Response("Updated!", status=201, content_type='application/json')
+            rsp = Response("OK UPDATE", status=200, content_type='application/json')
             return rsp
         except Exception as e:
             print(str(e))
-            rsp = Response("Error on PUT", status=400, content_type='text/plain')
+            rsp = Response("ADDRESS NOT FOUND", status=404, content_type='text/plain')
             return rsp
-    else:
+    elif request.method == 'DELETE':
         try:
             res = a_service.delete_address(addressID)
-            rsp = Response("Deleted!", status=201, content_type='application/json')
+            if not res:
+                rsp = Response("ADDRESS NOT FOUND", status=404, content_type='text/plain')
+                return rsp
+            rsp = Response("OK DELETE", status=200, content_type='application/json')
             return rsp
         except Exception as e:
             print(str(e))
-            rsp = Response("Error on DELETE", status=404, content_type='text/plain')
-            return rsp
+    else:
+        rsp = Response("NOT IMPLEMENTED", status=501)
+        return rsp
 
 @app.route('/addresses/<addressID>/users', methods=['GET'])
 def get_users_by_address(addressID):
-    res = a_service.get_user_by_address(addressID)
-    rsp = Response(json.dumps(res), status=200, content_type="application/json")
-    return rsp
+    if request.method == 'GET':
+        res = a_service.get_user_by_address(addressID)
+        if not res:
+            rsp = Response("USER NOT FOUND", status=404, content_type='text/plain')
+            return rsp
+        rsp = Response(json.dumps(res), status=200, content_type="application/json")
+        return rsp
+    else:
+        rsp = Response("NOT IMPLEMENTED", status=501)
+        return rsp
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0")
