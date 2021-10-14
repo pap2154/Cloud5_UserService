@@ -7,6 +7,7 @@ from application_services.imdb_artists_resource import IMDBArtistResource
 from database_services.RDBService import RDBService as d_service
 from application_services.user_resource import userResource as u_service
 from application_services.address_resource import addressResource as a_service
+from application_services.movie_history_resource import movieHistoryResource as h_service
 
 app = Flask(__name__)
 CORS(app)
@@ -43,6 +44,7 @@ def get_users():
     elif request.method == 'POST':
         try:
             body = request.get_json()
+            print(body)
             res = u_service.add_user(body)
             rsp = Response("CREATED", status=201, content_type='text/plain')
             return rsp
@@ -168,6 +170,95 @@ def get_users_by_address(addressID):
     else:
         rsp = Response("NOT IMPLEMENTED", status=501)
         return rsp
+
+
+@app.route('/movie-histories', methods=['GET', 'POST'])
+def get_movie_histories():
+    if request.method == 'GET':
+        res = h_service.get_all_history()
+        if not res:
+            rsp = Response("HISTORY NOT FOUND", status=404, content_type='text/plain')
+            return rsp
+        rsp = Response(json.dumps(res), status=200, content_type="application/json")
+        return rsp
+    elif request.method == 'POST':
+        try:
+            body = request.get_json()
+            print(body)
+            res = h_service.add_history(body)
+            rsp = Response("CREATED", status=201, content_type='text/plain')
+            return rsp
+        except Exception as e:
+            print(e)
+            rsp = Response("UNPROCESSABLE ENTITY", status=422, content_type='text/plain')
+            return rsp
+    else:
+        rsp = Response("NOT IMPLEMENTED", status=501)
+        return rsp
+
+
+@app.route('/movie-histories/user/<userID>', methods=['GET'])
+def get_history_by_user_id(userID):
+    if request.method == 'GET':
+        res = h_service.get_history_by_user_id(userID)
+        if not res:
+            rsp = Response("HISTORY NOT FOUND", status=404, content_type='text/plain')
+            return rsp
+        rsp = Response(json.dumps(res), status=200, content_type="application/json")
+        return rsp
+    else:
+        rsp = Response("NOT IMPLEMENTED", status=501)
+        return rsp
+
+@app.route('/movie-histories/movie/<movieID>', methods=['GET'])
+def get_history_by_movie_id(movieID):
+    if request.method == 'GET':
+        res = h_service.get_history_by_movie_id(movieID)
+        if not res:
+            rsp = Response("HISTORY NOT FOUND", status=404, content_type='text/plain')
+            return rsp
+        rsp = Response(json.dumps(res), status=200, content_type="application/json")
+        return rsp
+    else:
+        rsp = Response("NOT IMPLEMENTED", status=501)
+        return rsp
+
+@app.route('/movie-histories/<userID>/likedMovies', methods=['GET'])
+def get_liked_movie_history_by_user_id(userID):
+    if request.method == 'GET':
+        res = h_service.get_liked_movies(userID)
+        if not res:
+            rsp = Response("HISTORY NOT FOUND", status=404, content_type='text/plain')
+            return rsp
+        rsp = Response(json.dumps(res), status=200, content_type="application/json")
+        return rsp
+    else:
+        rsp = Response("NOT IMPLEMENTED", status=501)
+        return rsp
+
+@app.route('/movie-histories/<userID>/<movieID>', methods=['GET', 'DELETE'])
+def get_history_by_user_movie_id(userID, movieID):
+    if request.method == 'GET':
+        res = h_service.get_history_by_user_movie_id(userID, movieID)
+        if not res:
+            rsp = Response("HISTORY NOT FOUND", status=404, content_type='text/plain')
+            return rsp
+        rsp = Response(json.dumps(res), status=200, content_type="application/json")
+        return rsp
+    elif request.method == 'DELETE':
+        try:
+            res = h_service.delete_history_by_user_movie_id(userID, movieID)
+            if not res:
+                rsp = Response("HISTORY NOT FOUND", status=404, content_type='text/plain')
+                return rsp
+            rsp = Response("OK DELETE", status=200, content_type='application/json')
+            return rsp
+        except Exception as e:
+            print(str(e))
+    else:
+        rsp = Response("NOT IMPLEMENTED", status=501)
+        return rsp
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0")
