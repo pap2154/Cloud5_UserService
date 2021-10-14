@@ -190,6 +190,36 @@ class RDBService:
 
         return res
 
+    @classmethod
+    def delete_history_by_userID_movieID(cls, db_schema, table_name, userID, movieID):
+
+        conn = cls._get_db_connection()
+        cur = conn.cursor()
+
+        sql = "delete from " + db_schema + "." + table_name + " where userID = " + userID + " and movieID = " + movieID
+        print("SQL Statement = " + cur.mogrify(sql, None))
+        res = cur.execute(sql)
+
+        conn.close()
+
+        return res
+
+    @classmethod
+    def get_resource_by_column_id(cls, db_schema, table_name, column, id):
+
+        conn = cls._get_db_connection()
+        cur = conn.cursor()
+
+        sql = "select * from " + db_schema + "." + table_name + " where " + column + " = " + id
+        print("SQL Statement = " + cur.mogrify(sql, None))
+
+        res = cur.execute(sql)
+        res = cur.fetchall()
+
+        conn.close()
+
+        return res
+
     # @classmethod
     # def get_resource_by_id(cls, db_schema, table_name, id):
     #
