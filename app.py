@@ -15,7 +15,7 @@ CORS(app)
 
 @app.route('/')
 def hello_world():
-    return 'Hello Patis World!'
+    return 'Hello Patis World! Welcome to the USER API'
     # return render_template(static/simple-test.html)
 
 
@@ -37,23 +37,31 @@ def get_users():
     if request.method == 'GET':
         res = u_service.get_all_users()
         if not res:
-            rsp = Response("USER NOT FOUND", status=404, content_type='text/plain')
+            rsp = Response("USERS NOT FOUND", status=200, content_type='text/plain')
             return rsp
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     elif request.method == 'POST':
         try:
             body = request.get_json()
-            print(body)
             res = u_service.add_user(body)
-            rsp = Response("CREATED", status=201, content_type='text/plain')
+            location = "users/" + str(res[1])
+            statusRespDict = {
+                "status": "201 CREATED",
+                "location": location
+            }
+            rsp = Response(json.dumps(statusRespDict), status=201, content_type="application/json")
             return rsp
         except Exception as e:
             print(e)
-            rsp = Response("UNPROCESSABLE ENTITY", status=422, content_type='text/plain')
+            statusRespDict = {
+                "status": "422 UNPROCESSABLE ENTITY",
+                "error message": str(e)
+            }
+            rsp = Response(json.dumps(statusRespDict), status=422, content_type='application/json')
             return rsp
     else:
-        rsp = Response("NOT IMPLEMENTED", status=501)
+        rsp = Response("NOT IMPLEMENTED", status=400)
         return rsp
 
 @app.route('/users/<userID>', methods=['GET', 'PUT', 'DELETE'])
@@ -61,7 +69,7 @@ def get_users_by_id(userID):
     if request.method == 'GET':
         res = u_service.get_user_by_id(userID)
         if not res:
-            rsp = Response("USER NOT FOUND", status=404, content_type='text/plain')
+            rsp = Response("USER NOT FOUND", status=200, content_type='text/plain')
             return rsp
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
@@ -69,24 +77,41 @@ def get_users_by_id(userID):
         try:
             body = request.get_json()
             res = u_service.update_user(userID, body)
-            rsp = Response("OK UPDATE", status=200, content_type='application/json')
+            if not res:
+                rsp = Response("USER NOT FOUND", status=200, content_type='text/plain')
+                return rsp
+            location = "users/" + userID
+            statusRespDict = {
+                "status": "200 UPDATED",
+                "location": location
+            }
+            rsp = Response(json.dumps(statusRespDict), status=200, content_type='application/json')
             return rsp
         except Exception as e:
-            print(str(e))
-            rsp = Response("USER NOT FOUND", status=404, content_type='text/plain')
+            print(e)
+            statusRespDict = {
+                "status": "422 UNPROCESSABLE ENTITY",
+                "error message": str(e)
+            }
+            rsp = Response(json.dumps(statusRespDict), status=422, content_type='application/json')
             return rsp
     elif request.method == 'DELETE':
         try:
             res = u_service.delete_user(userID)
             if not res:
-                rsp = Response("USER NOT FOUND", status=404, content_type='text/plain')
+                rsp = Response("USER NOT FOUND", status=200, content_type='text/plain')
                 return rsp
-            rsp = Response("OK DELETE", status=200, content_type='application/json')
+            rsp = Response("OK DELETE", status=204, content_type='text/plain')
             return rsp
         except Exception as e:
-            print(str(e))
+            statusRespDict = {
+                "status": "422 UNPROCESSABLE ENTITY",
+                "error message": str(e)
+            }
+            rsp = Response(json.dumps(statusRespDict), status=422, content_type='application/json')
+            return rsp
     else:
-        rsp = Response("NOT IMPLEMENTED", status=501)
+        rsp = Response("NOT IMPLEMENTED", status=400)
         return rsp
 
 
@@ -95,12 +120,12 @@ def get_address_by_user(userID):
     if request.method == 'GET':
         res = u_service.get_address_by_user("user_service", "user", "address", userID)
         if not res:
-            rsp = Response("ADDRESS NOT FOUND", status=404, content_type='text/plain')
+            rsp = Response("ADDRESS NOT FOUND", status=200, content_type='text/plain')
             return rsp
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     else:
-        rsp = Response("NOT IMPLEMENTED", status=501)
+        rsp = Response("NOT IMPLEMENTED", status=400)
         return rsp
 
 @app.route('/addresses', methods=['GET', 'POST'])
@@ -108,7 +133,7 @@ def get_addresses():
     if request.method == 'GET':
         res = a_service.get_all_addresses()
         if not res:
-            rsp = Response("ADDRESS NOT FOUND", status=404, content_type='text/plain')
+            rsp = Response("ADDRESS NOT FOUND", status=200, content_type='text/plain')
             return rsp
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
@@ -116,13 +141,22 @@ def get_addresses():
         try:
             body = request.get_json()
             res = a_service.add_address(body)
-            rsp = Response("CREATED", status=201, content_type='application/json')
+            location = "addresses/" + str(res[1])
+            statusRespDict = {
+                "status": "201 CREATED",
+                "location": location
+            }
+            rsp = Response(json.dumps(statusRespDict), status=201, content_type="application/json")
             return rsp
-        except:
-            rsp = Response("UNPROCESSABLE ENTITY", status=422, content_type='text/plain')
+        except Exception as e:
+            statusRespDict = {
+                "status": "422 UNPROCESSABLE ENTITY",
+                "error message": str(e)
+            }
+            rsp = Response(json.dumps(statusRespDict), status=422, content_type='application/json')
             return rsp
     else:
-        rsp = Response("NOT IMPLEMENTED", status=501)
+        rsp = Response("NOT IMPLEMENTED", status=400)
         return rsp
 
 @app.route('/addresses/<addressID>', methods=['GET','PUT', 'DELETE'])
@@ -130,7 +164,7 @@ def get_addresses_by_id(addressID):
     if request.method == 'GET':
         res = a_service.get_address_by_id(addressID)
         if not res:
-            rsp = Response("ADDRESS NOT FOUND", status=404, content_type='text/plain')
+            rsp = Response("ADDRESS NOT FOUND", status=200, content_type='text/plain')
             return rsp
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
@@ -138,24 +172,42 @@ def get_addresses_by_id(addressID):
         try:
             body = request.get_json()
             res = a_service.update_address(addressID, body)
-            rsp = Response("OK UPDATE", status=200, content_type='application/json')
-            return rsp
+            if res:
+                location = "addresses/" + addressID
+                statusRespDict = {
+                    "status": "200 UPDATED",
+                    "location": location
+                }
+                rsp = Response(json.dumps(statusRespDict), status=200, content_type='application/json')
+                return rsp
+            else:
+                rsp = Response("ADDRESS NOT FOUND", status=200, content_type='text/plain')
+                return rsp
         except Exception as e:
             print(str(e))
-            rsp = Response("ADDRESS NOT FOUND", status=404, content_type='text/plain')
+            statusRespDict = {
+                "status": "422 UNPROCESSABLE ENTITY",
+                "error message": str(e)
+            }
+            rsp = Response(json.dumps(statusRespDict), status=422, content_type='application/json')
             return rsp
     elif request.method == 'DELETE':
         try:
             res = a_service.delete_address(addressID)
             if not res:
-                rsp = Response("ADDRESS NOT FOUND", status=404, content_type='text/plain')
+                rsp = Response("ADDRESS NOT FOUND", status=200, content_type='text/plain')
                 return rsp
-            rsp = Response("OK DELETE", status=200, content_type='application/json')
+            rsp = Response("OK DELETE", status=204, content_type='text/plain')
             return rsp
         except Exception as e:
-            print(str(e))
+            statusRespDict = {
+                "status": "422 UNPROCESSABLE ENTITY",
+                "error message": str(e)
+            }
+            rsp = Response(json.dumps(statusRespDict), status=422, content_type='application/json')
+            return rsp
     else:
-        rsp = Response("NOT IMPLEMENTED", status=501)
+        rsp = Response("NOT IMPLEMENTED", status=400)
         return rsp
 
 @app.route('/addresses/<addressID>/users', methods=['GET'])
@@ -163,12 +215,12 @@ def get_users_by_address(addressID):
     if request.method == 'GET':
         res = a_service.get_user_by_address(addressID)
         if not res:
-            rsp = Response("USER NOT FOUND", status=404, content_type='text/plain')
+            rsp = Response("ADDRESS OR USERS NOT FOUND", status=200, content_type='text/plain')
             return rsp
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     else:
-        rsp = Response("NOT IMPLEMENTED", status=501)
+        rsp = Response("NOT IMPLEMENTED", status=400)
         return rsp
 
 
@@ -177,7 +229,7 @@ def get_movie_histories():
     if request.method == 'GET':
         res = h_service.get_all_history()
         if not res:
-            rsp = Response("HISTORY NOT FOUND", status=404, content_type='text/plain')
+            rsp = Response("HISTORIES NOT FOUND", status=200, content_type='text/plain')
             return rsp
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
@@ -186,14 +238,24 @@ def get_movie_histories():
             body = request.get_json()
             print(body)
             res = h_service.add_history(body)
-            rsp = Response("CREATED", status=201, content_type='text/plain')
+            print(res)
+            location = "movie-histories/" + str(body['userID']) + "/" + str(body['movieID'])
+            statusRespDict = {
+                "status": "201 CREATED",
+                "location": location
+            }
+            rsp = Response(json.dumps(statusRespDict), status=201, content_type="application/json")
             return rsp
         except Exception as e:
             print(e)
-            rsp = Response("UNPROCESSABLE ENTITY", status=422, content_type='text/plain')
+            statusRespDict = {
+                "status": "422 UNPROCESSABLE ENTITY",
+                "error message": str(e)
+            }
+            rsp = Response(json.dumps(statusRespDict), status=422, content_type='application/json')
             return rsp
     else:
-        rsp = Response("NOT IMPLEMENTED", status=501)
+        rsp = Response("NOT IMPLEMENTED", status=400)
         return rsp
 
 
@@ -202,12 +264,12 @@ def get_history_by_user_id(userID):
     if request.method == 'GET':
         res = h_service.get_history_by_user_id(userID)
         if not res:
-            rsp = Response("HISTORY NOT FOUND", status=404, content_type='text/plain')
+            rsp = Response("HISTORY NOT FOUND", status=200, content_type='text/plain')
             return rsp
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     else:
-        rsp = Response("NOT IMPLEMENTED", status=501)
+        rsp = Response("NOT IMPLEMENTED", status=400)
         return rsp
 
 @app.route('/movie-histories/movie/<movieID>', methods=['GET'])
@@ -215,12 +277,12 @@ def get_history_by_movie_id(movieID):
     if request.method == 'GET':
         res = h_service.get_history_by_movie_id(movieID)
         if not res:
-            rsp = Response("HISTORY NOT FOUND", status=404, content_type='text/plain')
+            rsp = Response("HISTORY NOT FOUND", status=200, content_type='text/plain')
             return rsp
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     else:
-        rsp = Response("NOT IMPLEMENTED", status=501)
+        rsp = Response("NOT IMPLEMENTED", status=400)
         return rsp
 
 @app.route('/movie-histories/<userID>/likedMovies', methods=['GET'])
@@ -228,12 +290,12 @@ def get_liked_movie_history_by_user_id(userID):
     if request.method == 'GET':
         res = h_service.get_liked_movies(userID)
         if not res:
-            rsp = Response("HISTORY NOT FOUND", status=404, content_type='text/plain')
+            rsp = Response("HISTORY NOT FOUND", status=200, content_type='text/plain')
             return rsp
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     else:
-        rsp = Response("NOT IMPLEMENTED", status=501)
+        rsp = Response("NOT IMPLEMENTED", status=400)
         return rsp
 
 @app.route('/movie-histories/<userID>/<movieID>', methods=['GET', 'DELETE'])
@@ -241,7 +303,7 @@ def get_history_by_user_movie_id(userID, movieID):
     if request.method == 'GET':
         res = h_service.get_history_by_user_movie_id(userID, movieID)
         if not res:
-            rsp = Response("HISTORY NOT FOUND", status=404, content_type='text/plain')
+            rsp = Response("HISTORY NOT FOUND", status=200, content_type='text/plain')
             return rsp
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
@@ -249,14 +311,20 @@ def get_history_by_user_movie_id(userID, movieID):
         try:
             res = h_service.delete_history_by_user_movie_id(userID, movieID)
             if not res:
-                rsp = Response("HISTORY NOT FOUND", status=404, content_type='text/plain')
+                rsp = Response("HISTORY NOT FOUND", status=200, content_type='text/plain')
                 return rsp
-            rsp = Response("OK DELETE", status=200, content_type='application/json')
+            rsp = Response("OK DELETE", status=204, content_type='application/json')
             return rsp
         except Exception as e:
             print(str(e))
+            statusRespDict = {
+                "status": "422 UNPROCESSABLE ENTITY",
+                "error message": str(e)
+            }
+            rsp = Response(json.dumps(statusRespDict), status=422, content_type='application/json')
+            return rsp
     else:
-        rsp = Response("NOT IMPLEMENTED", status=501)
+        rsp = Response("NOT IMPLEMENTED", status=400)
         return rsp
 
 
