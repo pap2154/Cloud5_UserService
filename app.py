@@ -39,13 +39,15 @@ def get_users():
         if not res:
             rsp = Response("USERS NOT FOUND", status=200, content_type='text/plain')
             return rsp
+
+        u_service.get_links(res)
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     elif request.method == 'POST':
         try:
             body = request.get_json()
             res = u_service.add_user(body)
-            location = "users/" + str(res[1])
+            location = "/users/" + str(res[1])
             statusRespDict = {
                 "status": "201 CREATED",
                 "location": location
@@ -71,6 +73,7 @@ def get_users_by_id(userID):
         if not res:
             rsp = Response("USER NOT FOUND", status=200, content_type='text/plain')
             return rsp
+        u_service.get_links(res)
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     elif request.method == 'PUT':
@@ -80,7 +83,7 @@ def get_users_by_id(userID):
             if not res:
                 rsp = Response("USER NOT FOUND", status=200, content_type='text/plain')
                 return rsp
-            location = "users/" + userID
+            location = "/users/" + userID
             statusRespDict = {
                 "status": "200 UPDATED",
                 "location": location
@@ -122,6 +125,7 @@ def get_address_by_user(userID):
         if not res:
             rsp = Response("ADDRESS NOT FOUND", status=200, content_type='text/plain')
             return rsp
+        u_service.get_links(res)
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     else:
@@ -135,13 +139,14 @@ def get_addresses():
         if not res:
             rsp = Response("ADDRESS NOT FOUND", status=200, content_type='text/plain')
             return rsp
+        a_service.get_links(res)
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     elif request.method == 'POST':
         try:
             body = request.get_json()
             res = a_service.add_address(body)
-            location = "addresses/" + str(res[1])
+            location = "/addresses/" + str(res[1])
             statusRespDict = {
                 "status": "201 CREATED",
                 "location": location
@@ -166,6 +171,7 @@ def get_addresses_by_id(addressID):
         if not res:
             rsp = Response("ADDRESS NOT FOUND", status=200, content_type='text/plain')
             return rsp
+        a_service.get_links(res)
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     elif request.method == 'PUT':
@@ -173,7 +179,7 @@ def get_addresses_by_id(addressID):
             body = request.get_json()
             res = a_service.update_address(addressID, body)
             if res:
-                location = "addresses/" + addressID
+                location = "/addresses/" + addressID
                 statusRespDict = {
                     "status": "200 UPDATED",
                     "location": location
@@ -217,6 +223,7 @@ def get_users_by_address(addressID):
         if not res:
             rsp = Response("ADDRESS OR USERS NOT FOUND", status=200, content_type='text/plain')
             return rsp
+        u_service.get_links(res)
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     else:
@@ -231,15 +238,14 @@ def get_movie_histories():
         if not res:
             rsp = Response("HISTORIES NOT FOUND", status=200, content_type='text/plain')
             return rsp
+        h_service.get_links(res)
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     elif request.method == 'POST':
         try:
             body = request.get_json()
-            print(body)
-            res = h_service.add_history(body)
-            print(res)
-            location = "movie-histories/" + str(body['userID']) + "/" + str(body['movieID'])
+            h_service.add_history(body)
+            location = "/movie-histories/" + str(body['userID']) + "/" + str(body['movieID'])
             statusRespDict = {
                 "status": "201 CREATED",
                 "location": location
@@ -266,6 +272,7 @@ def get_history_by_user_id(userID):
         if not res:
             rsp = Response("HISTORY NOT FOUND", status=200, content_type='text/plain')
             return rsp
+        h_service.get_links(res)
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     else:
@@ -279,6 +286,7 @@ def get_history_by_movie_id(movieID):
         if not res:
             rsp = Response("HISTORY NOT FOUND", status=200, content_type='text/plain')
             return rsp
+        h_service.get_links(res)
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     else:
@@ -292,6 +300,7 @@ def get_liked_movie_history_by_user_id(userID):
         if not res:
             rsp = Response("HISTORY NOT FOUND", status=200, content_type='text/plain')
             return rsp
+        h_service.get_links(res)
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     else:
@@ -305,6 +314,7 @@ def get_history_by_user_movie_id(userID, movieID):
         if not res:
             rsp = Response("HISTORY NOT FOUND", status=200, content_type='text/plain')
             return rsp
+        h_service.get_links(res)
         rsp = Response(json.dumps(res), status=200, content_type="application/json")
         return rsp
     elif request.method == 'DELETE':
