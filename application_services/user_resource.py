@@ -7,6 +7,25 @@ class userResource(BaseApplicationResource):
     def __init__(self):
         super().__init__()
 
+
+    #resource_data is a dictionary of the information that we want to turn into a link array
+    @classmethod
+    def get_links(cls, resource_data):
+        for r in resource_data:
+            address_id = r.get('addressID')
+            user_id = r.get('userID')
+
+            links = []
+            self_link = {"rel": "self", "href": "/users/" + str(user_id)}
+            links.append(self_link)
+
+            if address_id:
+                address_link = {"rel": "address", "href": "/addresses/" + str(address_id)}
+                links.append(address_link)
+
+            r["links"] = links
+        return resource_data
+
     @classmethod
     def get_all_users(cls):
         return RDBService.get_resource("user_service", "user")
